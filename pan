@@ -1,0 +1,235 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>표결 결과</title>
+    
+    <style>
+        body.screenshot .controls,
+        body.screenshot #edit-title,
+        body.screenshot button[onclick^="toggleScreenshotMode"] {
+            display: none !important;
+        }
+
+        body {
+            background-color: black;
+            color: white;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            width: fit-content;
+            background-color: black;
+        }
+        th, td {
+            border: 1px solid white;
+            text-align: center;
+            padding: 8px;
+        }
+        th {
+            background-color: #333;
+        }
+        .circle {
+            font-size: 15px;
+            color: gray;
+        }
+        .lime { color: lime !important; }
+        .red { color: red !important; }
+        .yellow { color: gold !important; }
+        .gray { color: gray !important; }
+        .controls button {
+            margin: 0 2px;
+            padding: 2px 6px;
+        }
+        .approved {
+            background-color: lime !important;
+            color: black !important;
+        }
+        .rejected {
+            background-color: red !important;
+            color: white !important;
+        }
+        #title-bar {
+            display: flex;
+            justify-content: left;
+            align-items: left;
+            gap: 10px;
+            background-color: black;
+        }
+        #title-text {
+            font-weight: bold;
+        }
+        #edit-title {
+            background-color: grey;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            cursor: pointer;
+        }
+    </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>       
+    <script>
+        function toggleScreenshotMode() {
+            document.body.classList.toggle('screenshot');
+        }
+    
+        function vote(name, type) {
+            const rows = document.querySelectorAll(`tr[data-member='${name}']`);
+            rows.forEach(row => {
+                const circles = row.querySelectorAll('.circle');
+                circles.forEach(c => {
+                    c.className = 'circle ' + (type || 'gray');
+                });
+            });
+            updateCounts();
+        }
+
+        function updateCounts() {
+            const all = document.querySelectorAll('.circle');
+            let count = {lime: 0, red: 0, yellow: 0, total: 0};
+
+            all.forEach(c => {
+                count.total++;
+                if (c.classList.contains('lime')) count.lime++;
+                else if (c.classList.contains('red')) count.red++;
+            });
+
+            document.getElementById('total-count').innerText = count.total;
+            document.getElementById('yes-count').innerText = count.lime;
+            document.getElementById('no-count').innerText = count.red;
+            document.getElementById('present-count').innerText = count.lime + count.red;
+        }
+
+        function toggleVerdict() {
+            const td = document.getElementById("verdict-cell");
+            if (td.classList.contains("approved")) {
+                td.classList.remove("approved");
+                td.classList.add("rejected");
+                td.innerHTML = '<span class="verdict">부결</span>';
+            } else {
+                td.classList.remove("rejected");
+                td.classList.add("approved");
+                td.innerHTML = '<span class="verdict">가결</span>';
+            }
+        }
+        function captureScreenshot() {
+    document.body.classList.add("screenshot"); // 버튼 숨김
+    html2canvas(document.querySelector("table")).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "vote_screenshot.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        document.body.classList.remove("screenshot"); // 원상복구
+    });
+}
+
+        function editTitle() {
+            const current = document.getElementById("title-text").innerText;
+            const newTitle = prompt("새 제목을 입력하세요:", current);
+            if (newTitle !== null && newTitle.trim() !== "") {
+                document.getElementById("title-text").innerText = newTitle;
+            }
+        }
+
+        window.onload = updateCounts;
+    </script>
+</head>
+<body>
+<table>
+    <tr>
+        <th colspan="16" style="background-color: black;">
+            <div id="title-bar">
+                <span id="title-text">타이틀 (00 발의)</span>
+                <button id="edit-title" onclick="editTitle()">제목 수정</button>
+            </div>
+        </th>
+    </tr>
+    <tr>
+        <td >재적 <span id="total-count">0</span></td>
+        <td colspan="3" >재석 <span id="present-count">0</span></td>
+        <td colspan="3" style="color: lime;">찬성 <span id="yes-count">0</span></td>
+        <td colspan="3" style="color: red;">반대 <span id="no-count">0</span></td>
+        
+        <td id="verdict-cell" class="approved" colspan="6" onclick="toggleVerdict()">
+            <span class="verdict">가결</span>
+        </td>
+    </tr>
+<tr data-member='케이비'>
+            <td rowspan='3'>
+                케이비 (32) <br>
+                <div class="controls">
+                    <button onclick="vote('케이비', 'lime')">찬성</button>
+                    <button onclick="vote('케이비', 'red')">반대</button>
+                    
+                    <button onclick="vote('케이비', '')">불출석</button>
+                </div>
+            </td>
+            <td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td></tr>
+            <tr data-member='케이비'><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td></tr>
+            <tr data-member='케이비'><td class='circle gray'>●</td><td class='circle gray'>●</td></tr> 
+    <tr data-member='돌돔'>
+            <td rowspan='2'>
+                돌돔 (18)<br>
+                <div class="controls">
+                    <button onclick="vote('돌돔', 'lime')">찬성</button>
+                    <button onclick="vote('돌돔', 'red')">반대</button>
+                    
+                    <button onclick="vote('돌돔', '')">불출석</button>
+                </div>
+            </td>
+            <td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td></tr>
+            <tr data-member='돌돔'><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td></tr>
+<tr data-member='엔디미온'>
+            <td rowspan='1'>
+                엔디미온 (15)<br>
+                <div class="controls">
+                    <button onclick="vote('엔디미온', 'lime')">찬성</button>
+                    <button onclick="vote('엔디미온', 'red')">반대</button>
+                    
+                    <button onclick="vote('엔디미온', '')">불출석</button>
+                </div>
+            </td>
+            <td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td></tr>
+<tr data-member='피바'>
+            <td rowspan='2'>
+                피바 (22)<br>
+                <div class="controls">
+                    <button onclick="vote('피바', 'lime')">찬성</button>
+                    <button onclick="vote('피바', 'red')">반대</button>
+                    
+                    <button onclick="vote('피바', '')">불출석</button>
+                </div>
+            </td>
+            <td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td></tr>
+            <tr data-member='피바'><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td></tr>
+    <tr data-member='박시이'>
+            <td rowspan='1'>
+                박시이 (13)<br>
+                <div class="controls">
+                    <button onclick="vote('박시이', 'lime')">찬성</button>
+                    <button onclick="vote('박시이', 'red')">반대</button>
+                    
+                    <button onclick="vote('빅사이', '')">불출석</button>
+                </div>
+            </td>
+            <td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td><td class='circle gray'>●</td></tr>
+
+    <tr data-member='라인란트'>
+            <td rowspan='1'>
+                라인란트 (1)<br>
+                <div class="controls">
+                    <button onclick="vote('라인란트', 'lime')">찬성</button>
+                    <button onclick="vote('라인란트', 'red')">반대</button>
+                    <button onclick="vote('라인란트', '')">불출석</button>
+                </div>
+            </td>
+            <td class='circle gray'>●</td></tr>
+
+</table>
+
+<button onclick="toggleScreenshotMode()" style="position: fixed; top: 10px; right: 10px; z-index: 9999;">스크린샷 모드</button>
+    <button onclick="captureScreenshot()" style="position: fixed; top: 10px; right: 130px;">스크린샷 저장</button>
+</body>
+
+</html>
